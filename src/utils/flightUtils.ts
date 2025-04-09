@@ -1,8 +1,7 @@
-
 import { Flight, Booking } from '../data/models';
 import { mockFlights, mockBookings } from '../data/mockData';
 import { getCurrentUser } from './authUtils';
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/utils/toastUtils";
 
 // Get all flights
 export const getFlights = (): Promise<Flight[]> => {
