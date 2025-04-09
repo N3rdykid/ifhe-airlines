@@ -1,4 +1,3 @@
-
 import { Plane } from 'lucide-react';
 
 const Footer = () => {
@@ -9,7 +8,7 @@ const Footer = () => {
           <div className="md:col-span-1">
             <div className="flex items-center">
               <Plane className="h-8 w-8 text-airline-300" />
-              <span className="ml-2 text-xl font-semibold text-white">SkyWay</span>
+              <span className="ml-2 text-xl font-semibold text-white">IFHE AIRLINES</span>
             </div>
             <p className="mt-2 text-sm text-airline-300">
               Making air travel simple and enjoyable for everyone.
@@ -47,7 +46,7 @@ const Footer = () => {
         
         <div className="mt-8 border-t border-airline-800 pt-8 flex flex-col md:flex-row justify-between">
           <p className="text-airline-300 text-sm">
-            &copy; {new Date().getFullYear()} SkyWay Airlines. All rights reserved.
+            &copy; {new Date().getFullYear()} IFHE AIRLINES. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-airline-300 hover:text-white">

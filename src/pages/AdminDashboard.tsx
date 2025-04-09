@@ -44,7 +44,7 @@ interface FlightFormData {
 
 const initialFormData: FlightFormData = {
   flightNumber: '',
-  airline: 'SkyWay',
+  airline: 'IFHE AIRLINES',
   source: '',
   destination: '',
   departureDate: '',

@@ -14,7 +14,7 @@ const Navbar = () => {
           <div className="flex">
             <Link to="/" className="flex-shrink-0 flex items-center">
               <Plane className="h-8 w-8 text-airline-600" />
-              <span className="ml-2 text-xl font-semibold text-airline-800">SkyWay</span>
+              <span className="ml-2 text-xl font-semibold text-airline-800">IFHE AIRLINES</span>
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link 
