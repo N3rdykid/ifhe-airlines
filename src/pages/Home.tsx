@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CalendarIcon, MapPin, Plane, Search } from 'lucide-react';
@@ -7,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cities } from '@/data/mockData';
 import { searchFlights } from '@/utils/flightUtils';
 import { Flight } from '@/data/models';
+import { toast } from '@/utils/toastUtils';
 
 const Home = () => {
   const [source, setSource] = useState('');
@@ -273,7 +273,7 @@ const Home = () => {
               <div className="rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
                 <div className="relative h-48">
                   <img
-                    src="https://images.unsplash.com/photo-1525624286402-9f701e60e9a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                    src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
                     alt="London"
                     className="w-full h-full object-cover"
                   />
