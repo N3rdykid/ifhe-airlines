@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cities } from '@/data/mockData';
 import { Flight } from '@/data/models';
 import { searchFlights } from '@/utils/flightUtils';
+import { toast } from '@/utils/toastUtils';
 
 interface SearchFormProps {
   onSearchResults: (results: Flight[], source: string, destination: string) => void;
@@ -16,22 +17,35 @@ interface SearchFormProps {
 const SearchForm = ({ onSearchResults, setIsSearching, isSearching }: SearchFormProps) => {
   const [source, setSource] = useState('');
   const [destination, setDestination] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]); // Set today as default
 
   const handleSearch = async () => {
-    if (!source || !destination || !date) {
+    if (!source || !destination) {
+      toast.error("Please select both source and destination");
       return;
     }
     
     setIsSearching(true);
     try {
       const results = await searchFlights(source, destination, date);
+      if (results.length === 0) {
+        toast.info(`No flights found for ${source} to ${destination}. Try another route.`);
+      } else {
+        toast.success(`Found ${results.length} flights!`);
+      }
       onSearchResults(results, source, destination);
     } catch (error) {
       console.error('Error searching flights:', error);
+      toast.error('Error searching flights. Please try again.');
     } finally {
       setIsSearching(false);
     }
+  };
+
+  // Helper function to get full city name
+  const getCityName = (code: string) => {
+    const city = cities.find(c => c.code === code);
+    return city ? `${city.name} (${city.code})` : code;
   };
 
   return (
@@ -90,7 +104,7 @@ const SearchForm = ({ onSearchResults, setIsSearching, isSearching }: SearchForm
               value={date}
               onChange={(e) => setDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
-              className="form-input pl-9"
+              className="form-input pl-9 w-full rounded-md border border-gray-300 py-2"
             />
             <CalendarIcon className="absolute left-3 top-2.5 text-gray-400 h-4 w-4" />
           </div>
@@ -99,7 +113,7 @@ const SearchForm = ({ onSearchResults, setIsSearching, isSearching }: SearchForm
         <div className="flex items-end">
           <Button 
             onClick={handleSearch} 
-            disabled={!source || !destination || !date || isSearching}
+            disabled={isSearching}
             className="w-full bg-airline-600 hover:bg-airline-700"
           >
             {isSearching ? (
