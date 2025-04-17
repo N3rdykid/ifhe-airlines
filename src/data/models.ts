@@ -1,9 +1,12 @@
 
 export interface User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   isAdmin: boolean;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Flight {
@@ -18,8 +21,11 @@ export interface Flight {
   arrivalTime: string;
   price: number;
   availableSeats: number;
+  totalSeats: number;
   duration: string;
   aircraft: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Booking {
@@ -27,13 +33,31 @@ export interface Booking {
   userId: string;
   flightId: string;
   flight: Flight;
-  bookingDate: string;
   seatNumber: string;
-  status: 'confirmed' | 'cancelled';
+  bookingDate: string;
+  status: 'confirmed' | 'cancelled' | 'pending';
+  paymentStatus: 'paid' | 'pending' | 'failed';
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface City {
   code: string;
   name: string;
   country: string;
+}
+
+export interface FlightSeat {
+  id: string;
+  flightId: string;
+  seatNumber: string;
+  isBooked: boolean;
+}
+
+export interface AdminAction {
+  id: string;
+  adminId: string;
+  actionType: string;
+  flightId?: string;
+  timestamp: string;
 }
