@@ -1,3 +1,4 @@
+
 import { Flight, Booking } from '../data/models';
 import { mockFlights, mockBookings } from '../data/mockData';
 import { getCurrentUser } from './authUtils';
@@ -91,7 +92,10 @@ export const bookFlight = (flightId: string): Promise<Booking | null> => {
         flight: flight,
         bookingDate: new Date().toISOString(),
         seatNumber,
-        status: 'confirmed'
+        status: 'confirmed',
+        paymentStatus: 'paid',
+        createdAt: new Date().toISOString(),
+        updatedAt: null
       };
       
       // In a real app, we would save this to a database

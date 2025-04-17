@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plane, Plus, Edit, Trash2, Save, X, AlertTriangle, Search } from 'lucide-react';
@@ -38,8 +37,11 @@ interface FlightFormData {
   arrivalTime: string;
   price: number;
   availableSeats: number;
+  totalSeats: number;
   duration: string;
   aircraft: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 const initialFormData: FlightFormData = {
@@ -53,8 +55,10 @@ const initialFormData: FlightFormData = {
   arrivalTime: '',
   price: 0,
   availableSeats: 0,
+  totalSeats: 180,
   duration: '',
   aircraft: '',
+  createdAt: new Date().toISOString()
 };
 
 const AdminDashboard = () => {
@@ -69,7 +73,6 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in and is an admin
     if (!isLoggedIn()) {
       navigate('/login');
       return;
@@ -116,7 +119,6 @@ const AdminDashboard = () => {
     const { name, value } = e.target;
     let parsedValue: string | number = value;
     
-    // Parse numeric values
     if (name === 'price' || name === 'availableSeats') {
       parsedValue = parseFloat(value) || 0;
     }
@@ -132,11 +134,9 @@ const AdminDashboard = () => {
     
     try {
       if (isEditing && editingFlight.id) {
-        // Update existing flight
         const updatedFlight = await updateFlight(editingFlight as Flight);
         setFlights(flights.map(f => f.id === updatedFlight.id ? updatedFlight : f));
       } else {
-        // Add new flight
         const newFlight = await addFlight(editingFlight);
         setFlights([...flights, newFlight]);
       }
@@ -479,6 +479,21 @@ const AdminDashboard = () => {
                   type="number"
                   min="0"
                   value={editingFlight.availableSeats}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="totalSeats" className="block text-sm font-medium text-gray-700 mb-1">
+                  Total Seats *
+                </label>
+                <Input
+                  id="totalSeats"
+                  name="totalSeats"
+                  type="number"
+                  min="0"
+                  value={editingFlight.totalSeats}
                   onChange={handleInputChange}
                   required
                 />
