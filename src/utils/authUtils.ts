@@ -1,3 +1,4 @@
+
 import { toast } from "@/utils/toastUtils";
 
 export const validateEmail = (email: string): boolean => {
@@ -16,6 +17,7 @@ export const login = (email: string, password: string): Promise<boolean> => {
     // Mock authentication - in a real app, this would call an API
     setTimeout(() => {
       if (email === 'user@example.com' && password === 'Password123') {
+        // Store auth data in localStorage
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user', JSON.stringify({
           id: 'user1',
@@ -26,6 +28,7 @@ export const login = (email: string, password: string): Promise<boolean> => {
         toast.success("Successfully logged in!");
         resolve(true);
       } else if (email === 'admin@example.com' && password === 'Password123') {
+        // Store auth data in localStorage
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user', JSON.stringify({
           id: 'admin1',
