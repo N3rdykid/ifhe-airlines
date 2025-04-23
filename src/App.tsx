@@ -9,8 +9,6 @@ import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import Auth from "./pages/Auth";
 import BookingPage from "./pages/BookingPage";
 import Bookings from "./pages/Bookings";
@@ -51,6 +49,18 @@ const App = () => {
                 path="/auth" 
                 element={
                   session ? <Navigate to="/" replace /> : <Auth />
+                } 
+              />
+              <Route 
+                path="/login" 
+                element={
+                  session ? <Navigate to="/" replace /> : <Navigate to="/auth" replace state={{ initialView: "login" }} />
+                } 
+              />
+              <Route 
+                path="/signup" 
+                element={
+                  session ? <Navigate to="/" replace /> : <Navigate to="/auth" replace state={{ initialView: "signup" }} />
                 } 
               />
               <Route 

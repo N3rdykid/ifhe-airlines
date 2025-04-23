@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,13 +13,27 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/utils/toastUtils';
 
+interface LocationState {
+  initialView?: "login" | "signup";
+}
+
 const Auth = () => {
+  const location = useLocation();
+  const state = location.state as LocationState;
+  
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(state?.initialView === "signup");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Update view based on location state when it changes
+    if (state?.initialView) {
+      setIsSignUp(state.initialView === "signup");
+    }
+  }, [state]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
