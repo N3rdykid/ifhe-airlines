@@ -1,17 +1,32 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Plane, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/utils/toastUtils';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const navigate = useNavigate();
   
-  // Get session from Supabase auth
-  const [user, setUser] = useState(supabase.auth.getUser());
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -48,12 +63,12 @@ const Navbar = () => {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
-            {(await user).data.user ? (
+            {user ? (
               <div className="flex items-center space-x-4">
                 <div className="text-sm font-medium text-gray-700">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-1 text-airline-600" />
-                    {(await user).data.user?.user_metadata?.full_name || 'User'}
+                    {user?.user_metadata?.full_name || 'User'}
                   </div>
                 </div>
                 <Button variant="ghost" onClick={handleLogout} className="text-airline-600 hover:text-airline-700 hover:bg-airline-50">
@@ -110,7 +125,7 @@ const Navbar = () => {
             >
               My Bookings
             </Link>
-            {(await user).data.user ? (
+            {user ? (
               <button
                 onClick={() => {
                   handleLogout();
