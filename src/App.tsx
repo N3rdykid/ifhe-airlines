@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -65,14 +64,12 @@ const App = () => {
               />
               <Route 
                 path="/booking/:flightId" 
-                element={
-                  session ? <BookingPage /> : <Navigate to="/auth" replace />
-                } 
+                element={<BookingPage />}
               />
               <Route 
                 path="/bookings" 
                 element={
-                  session ? <Bookings /> : <Navigate to="/auth" replace />
+                  session ? <Bookings /> : <Navigate to="/auth" replace state={{ redirectTo: "/bookings" }} />
                 } 
               />
               <Route 

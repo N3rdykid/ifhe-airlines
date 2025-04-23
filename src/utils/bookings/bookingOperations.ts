@@ -1,18 +1,19 @@
 
 import { Booking } from '@/data/models';
-import { getCurrentUser } from '@/utils/authUtils';
 import { toast } from "@/utils/toastUtils";
 import { supabase } from '@/integrations/supabase/client';
 import { getFlightById } from '../flights/flightSearch';
 
 // Get user bookings
 export const getUserBookings = async (): Promise<Booking[]> => {
-  const user = getCurrentUser();
-  if (!user) {
-    return [];
-  }
-
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("You must be logged in to view bookings");
+      return [];
+    }
+
     const { data: bookings, error } = await supabase
       .from('flight_bookings')
       .select('*')
@@ -62,13 +63,14 @@ export const getUserBookings = async (): Promise<Booking[]> => {
 
 // Book a flight
 export const bookFlight = async (flightId: string): Promise<Booking | null> => {
-  const user = getCurrentUser();
-  if (!user) {
-    toast.error("You must be logged in to book a flight");
-    return null;
-  }
-
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("You must be logged in to book a flight");
+      return null;
+    }
+
     const flight = await getFlightById(flightId);
     if (!flight) {
       toast.error("Flight not found");
@@ -100,7 +102,7 @@ export const bookFlight = async (flightId: string): Promise<Booking | null> => {
         price: flight.price,
         aircraft: flight.aircraft,
         seat_number: seatNumber,
-        passenger_name: user.name || 'Guest User',
+        passenger_name: user.user_metadata?.full_name || user.email || 'Guest User',
         passenger_email: user.email
       })
       .select()
@@ -108,7 +110,7 @@ export const bookFlight = async (flightId: string): Promise<Booking | null> => {
 
     if (error) {
       console.error('Error booking flight:', error);
-      toast.error("Failed to book flight");
+      toast.error("Failed to book flight: " + error.message);
       return null;
     }
 
@@ -134,11 +136,32 @@ export const bookFlight = async (flightId: string): Promise<Booking | null> => {
 };
 
 // Cancel a booking
-export const cancelBooking = (bookingId: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      toast.success("Booking cancelled successfully");
-      resolve(true);
-    }, 800);
-  });
+export const cancelBooking = async (bookingId: string): Promise<boolean> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("You must be logged in to cancel a booking");
+      return false;
+    }
+    
+    const { error } = await supabase
+      .from('flight_bookings')
+      .update({ status: 'cancelled' })
+      .eq('id', bookingId)
+      .eq('user_id', user.id);
+      
+    if (error) {
+      console.error('Error cancelling booking:', error);
+      toast.error("Failed to cancel booking");
+      return false;
+    }
+    
+    toast.success("Booking cancelled successfully");
+    return true;
+  } catch (err) {
+    console.error('Error in cancelBooking:', err);
+    toast.error("An error occurred while cancelling the booking");
+    return false;
+  }
 };

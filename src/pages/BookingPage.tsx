@@ -1,12 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CalendarClock, Plane, Clock, MapPin, CreditCard, Check, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { getFlightById, bookFlight } from '@/utils/flightUtils';
-import { isLoggedIn } from '@/utils/authUtils';
+import { getFlightById } from '@/utils/flights/flightSearch';
+import { bookFlight } from '@/utils/bookings/bookingOperations';
 import { Flight, Booking } from '@/data/models';
+import { supabase } from '@/integrations/supabase/client';
 
 const BookingPage = () => {
   const { flightId } = useParams<{ flightId: string }>();
@@ -40,15 +42,19 @@ const BookingPage = () => {
       }
     };
 
+    // Check if user is logged in
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        navigate('/login', { state: { redirectTo: `/booking/${flightId}` }});
+      }
+    };
+
+    checkAuth();
     fetchFlight();
-  }, [flightId]);
+  }, [flightId, navigate]);
 
   const handleBookFlight = async () => {
-    if (!isLoggedIn()) {
-      navigate('/login');
-      return;
-    }
-
     if (!flightId) return;
 
     setBookingLoading(true);
