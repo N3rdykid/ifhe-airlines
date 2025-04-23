@@ -1,8 +1,8 @@
-
 import { Flight, Booking } from '../data/models';
-import { mockFlights, mockBookings } from '../data/mockData';
+import { mockFlights } from '../data/mockData';
 import { getCurrentUser } from './authUtils';
 import { toast } from "@/utils/toastUtils";
+import { supabase } from '@/integrations/supabase/client';
 
 // Get all flights
 export const getFlights = (): Promise<Flight[]> => {
@@ -47,70 +47,134 @@ export const getFlightById = (id: string): Promise<Flight | null> => {
 };
 
 // Get user bookings
-export const getUserBookings = (): Promise<Booking[]> => {
-  return new Promise((resolve) => {
-    const user = getCurrentUser();
-    if (!user) {
-      resolve([]);
-      return;
+export const getUserBookings = async (): Promise<Booking[]> => {
+  const user = getCurrentUser();
+  if (!user) {
+    return [];
+  }
+
+  try {
+    const { data: bookings, error } = await supabase
+      .from('flight_bookings')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching bookings:', error);
+      toast.error('Failed to fetch bookings');
+      return [];
     }
-    
-    setTimeout(() => {
-      const bookings = mockBookings.filter(booking => booking.userId === user.id);
-      resolve(bookings);
-    }, 500);
-  });
+
+    return bookings.map(booking => ({
+      id: booking.id,
+      userId: booking.user_id,
+      flightId: booking.flight_id,
+      flight: {
+        id: booking.flight_id,
+        flightNumber: booking.flight_number,
+        airline: booking.airline,
+        source: booking.source,
+        destination: booking.destination,
+        departureDate: booking.departure_date,
+        departureTime: booking.departure_time,
+        arrivalDate: booking.arrival_date,
+        arrivalTime: booking.arrival_time,
+        price: booking.price,
+        aircraft: booking.aircraft,
+        availableSeats: 0,
+        totalSeats: 0,
+        duration: '0h 0m',
+        createdAt: booking.created_at,
+      },
+      seatNumber: booking.seat_number,
+      status: booking.status,
+      paymentStatus: booking.payment_status,
+      bookingDate: booking.booking_date,
+      createdAt: booking.created_at,
+      updatedAt: booking.updated_at
+    }));
+  } catch (err) {
+    console.error('Error in getUserBookings:', err);
+    toast.error('Failed to fetch bookings');
+    return [];
+  }
 };
 
 // Book a flight
-export const bookFlight = (flightId: string): Promise<Booking | null> => {
-  return new Promise((resolve) => {
-    const user = getCurrentUser();
-    if (!user) {
-      toast.error("You must be logged in to book a flight");
-      resolve(null);
-      return;
+export const bookFlight = async (flightId: string): Promise<Booking | null> => {
+  const user = getCurrentUser();
+  if (!user) {
+    toast.error("You must be logged in to book a flight");
+    return null;
+  }
+
+  try {
+    // Get flight details
+    const flight = await getFlightById(flightId);
+    if (!flight) {
+      toast.error("Flight not found");
+      return null;
     }
+
+    if (flight.availableSeats <= 0) {
+      toast.error("No seats available on this flight");
+      return null;
+    }
+
+    // Generate a random seat number
+    const row = Math.floor(Math.random() * 30) + 1;
+    const seat = String.fromCharCode(65 + Math.floor(Math.random() * 6)); // A to F
+    const seatNumber = `${row}${seat}`;
+
+    // Insert booking into Supabase
+    const { data: booking, error } = await supabase
+      .from('flight_bookings')
+      .insert({
+        user_id: user.id,
+        flight_id: flight.id,
+        flight_number: flight.flightNumber,
+        airline: flight.airline,
+        source: flight.source,
+        destination: flight.destination,
+        departure_date: flight.departureDate,
+        departure_time: flight.departureTime,
+        arrival_date: flight.arrivalDate,
+        arrival_time: flight.arrivalTime,
+        price: flight.price,
+        aircraft: flight.aircraft,
+        seat_number: seatNumber,
+        passenger_name: user.name || 'Guest User',
+        passenger_email: user.email
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error booking flight:', error);
+      toast.error("Failed to book flight");
+      return null;
+    }
+
+    toast.success("Flight booked successfully!");
     
-    setTimeout(async () => {
-      const flight = await getFlightById(flightId);
-      if (!flight) {
-        toast.error("Flight not found");
-        resolve(null);
-        return;
-      }
-      
-      if (flight.availableSeats <= 0) {
-        toast.error("No seats available on this flight");
-        resolve(null);
-        return;
-      }
-      
-      // Generate a random seat number
-      const row = Math.floor(Math.random() * 30) + 1;
-      const seat = String.fromCharCode(65 + Math.floor(Math.random() * 6)); // A to F
-      const seatNumber = `${row}${seat}`;
-      
-      // Create a new booking
-      const newBooking: Booking = {
-        id: `b${Date.now()}`,
-        userId: user.id,
-        flightId: flight.id,
-        flight: flight,
-        bookingDate: new Date().toISOString(),
-        seatNumber,
-        status: 'confirmed',
-        paymentStatus: 'paid',
-        createdAt: new Date().toISOString(),
-        updatedAt: null
-      };
-      
-      // In a real app, we would save this to a database
-      // For now, let's just return it
-      toast.success("Flight booked successfully!");
-      resolve(newBooking);
-    }, 1000);
-  });
+    return {
+      id: booking.id,
+      userId: booking.user_id,
+      flightId: booking.flight_id,
+      flight: flight,
+      seatNumber: booking.seat_number,
+      status: booking.status,
+      paymentStatus: booking.payment_status,
+      bookingDate: booking.booking_date,
+      createdAt: booking.created_at,
+      updatedAt: booking.updated_at
+    };
+  } catch (err) {
+    console.error('Error in bookFlight:', err);
+    toast.error("An error occurred while booking the flight");
+    return null;
+  }
 };
 
 // Cancel a booking

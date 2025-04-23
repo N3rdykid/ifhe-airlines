@@ -9,6 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      flight_bookings: {
+        Row: {
+          aircraft: string
+          airline: string
+          arrival_date: string
+          arrival_time: string
+          booking_date: string
+          created_at: string
+          departure_date: string
+          departure_time: string
+          destination: string
+          flight_id: string
+          flight_number: string
+          id: string
+          passenger_email: string
+          passenger_name: string
+          payment_status: string
+          price: number
+          seat_number: string
+          source: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aircraft: string
+          airline: string
+          arrival_date: string
+          arrival_time: string
+          booking_date?: string
+          created_at?: string
+          departure_date: string
+          departure_time: string
+          destination: string
+          flight_id: string
+          flight_number: string
+          id?: string
+          passenger_email: string
+          passenger_name: string
+          payment_status?: string
+          price: number
+          seat_number: string
+          source: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aircraft?: string
+          airline?: string
+          arrival_date?: string
+          arrival_time?: string
+          booking_date?: string
+          created_at?: string
+          departure_date?: string
+          departure_time?: string
+          destination?: string
+          flight_id?: string
+          flight_number?: string
+          id?: string
+          passenger_email?: string
+          passenger_name?: string
+          payment_status?: string
+          price?: number
+          seat_number?: string
+          source?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
