@@ -1,8 +1,9 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Plane, LogOut, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/utils/toastUtils';
 import { isLoggedIn, logout, getCurrentUser, isAdmin } from '@/utils/authUtils';
 
 const Navbar = () => {
@@ -12,9 +13,14 @@ const Navbar = () => {
   const user = getCurrentUser();
   const userIsAdmin = isAdmin();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error('Error logging out');
+    } else {
+      toast.success('Logged out successfully');
+      navigate('/');
+    }
   };
 
   return (
