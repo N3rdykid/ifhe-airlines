@@ -1,3 +1,4 @@
+
 import { Flight, Booking } from '../data/models';
 import { mockFlights } from '../data/mockData';
 import { getCurrentUser } from './authUtils';
@@ -88,8 +89,10 @@ export const getUserBookings = async (): Promise<Booking[]> => {
         createdAt: booking.created_at,
       },
       seatNumber: booking.seat_number,
-      status: booking.status,
-      paymentStatus: booking.payment_status,
+      // Use type assertion to ensure status matches one of the allowed types
+      status: booking.status as 'confirmed' | 'cancelled' | 'pending',
+      // Use type assertion to ensure payment_status matches one of the allowed types
+      paymentStatus: booking.payment_status as 'paid' | 'pending' | 'failed',
       bookingDate: booking.booking_date,
       createdAt: booking.created_at,
       updatedAt: booking.updated_at
@@ -164,8 +167,10 @@ export const bookFlight = async (flightId: string): Promise<Booking | null> => {
       flightId: booking.flight_id,
       flight: flight,
       seatNumber: booking.seat_number,
-      status: booking.status,
-      paymentStatus: booking.payment_status,
+      // Use type assertion to ensure status matches the Booking interface
+      status: booking.status as 'confirmed' | 'cancelled' | 'pending',
+      // Use type assertion to ensure payment_status matches the Booking interface
+      paymentStatus: booking.payment_status as 'paid' | 'pending' | 'failed',
       bookingDate: booking.booking_date,
       createdAt: booking.created_at,
       updatedAt: booking.updated_at
